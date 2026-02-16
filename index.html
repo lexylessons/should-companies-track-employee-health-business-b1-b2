@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Should companies track employee health?</title>
+<style>
+/* SOFT TECH DESIGN TOKENS */
+:root {
+  --bg-paper: #f0f2f5;
+  --bg-surface: #ffffff;
+  --text-main: #1a202c;
+  --text-dim: #4a5568;
+  --accent: #4a90e2;
+  --border: #e2e8f0;
+  --success: #48bb78;
+  --error: #f56565;
+  --ctx-1: #4a90e2;
+  --ctx-2: #9f7aea;
+  --ctx-3: #68d391;
+  --ctx-4: #ed8936;
+  --ctx-5: #fc8181;
+  --ctx-6: #4fd1c5;
+  --card-bg: var(--bg-surface);
+  --radius: 24px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.06);
+  --border-color: var(--border);
+  --text-muted: var(--text-dim);
+}
+html { font-size: 20px; scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-paper);
+  color: var(--text-main);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 20px 100px;
+  min-height: 100vh;
+  transition: background-color 0.5s ease;
+}
+/* PROMINENT STATIC TECH GRAPHICS */
+.tech-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.9;
+}
+.tech-bg::before {
+  content: "";
+  position: absolute;
+  background-size: cover;
+  inset: 0;
+  background-image: url("https://assets.entrepreneur.com/content/3x2/2000/1649217518-Myproject157.jpg");
+  mask-image: radial-gradient(circle at center, black, transparent 100%);
+}
+/* Background Shifts */
+body.ctx-1 { --accent: var(--ctx-1); background-color: #eef2ff; }
+body.ctx-2 { --accent: var(--ctx-2); background-color: #f6f1ff; }
+body.ctx-3 { --accent: var(--ctx-3); background-color: #f1f8f3; }
+body.ctx-4 { --accent: var(--ctx-4); background-color: #f8f5f1; }
+body.ctx-5 { --accent: var(--ctx-5); background-color: #f8f1f1; }
+body.ctx-6 { --accent: var(--ctx-6); background-color: #f1f8f8; }
+/* CONTAINER & HEADER */
+.container { max-width: 850px; margin: 0 auto; position: relative; }
+header { text-align: center; padding: 60px 0 30px; }
+h1 {
+  font-size: 2.5rem;
+  letter-spacing: -0.04em;
+  margin: 10px 0;
+  font-weight: 800;
+  color: var(--text-main);
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+}
+.subtitle {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+/* SOFT NAVIGATION */
+.top-nav-wrapper { position: sticky; top: 15px; z-index: 100; margin-bottom: 40px; }
+.top-nav {
+  background: rgba(248, 250, 252, 0.75);
+  backdrop-filter: blur(15px);
+  border-radius: 24px;
+  padding: clamp(4px, 1vw, 8px);
+  display: flex;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 15px 35px -10px rgba(0,0,0,0.05);
+  position: relative;
+}
+.nav-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 4px;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 16px;
+  transition: all 0.3s;
+}
+.nav-tab:active { transform: scale(0.95); }
+.nav-tab .label { font-size: 0.85rem; font-weight: 600; color: var(--text-dim); }
+.nav-tab .sub { font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; margin-top: 3px; }
+.nav-pill-bg {
+  position: absolute;
+  top: 8px; bottom: 8px; left: 8px;
+  width: calc(25% - 3px);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.5s cubic-bezier(0.2, 1, 0.2, 1);
+  z-index: 1;
+}
+/* CARDS */
+.card {
+  background: rgba(248, 250, 252, 0.75);
+  backdrop-filter: blur(15px);
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  padding: 30px;
+  margin-bottom: 24px;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.02),
+    0 10px 20px rgba(0,0,0,0.04),
+    0 20px 40px rgba(0,0,0,0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover { box-shadow: 0 20px 50px -20px rgba(0,0,0,0.08); }
+h2 {
+  font-size: 1.3rem;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 0;
+}
+h2::before {
+  content: "";
+  width: 6px;
+  height: 22px;
+  background: var(--accent);
+  border-radius: 10px;
+  opacity: 0.6;
+}
+/* ARTICLE – beautiful blog style */
+.article-box {
+  background:#ffffff;
+  border-radius:22px;
+  border:1px solid #e2e8f0;
+  padding:26px 26px 28px;
+  box-shadow:0 18px 45px -24px rgba(15,23,42,0.45);
+  position:relative;
+  overflow:hidden;
+}
+.article-box::before {
+  content:"Context • Workplace health";
+  position:absolute;
+  top:16px;
+  right:24px;
+  font-size:0.65rem;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:#a0aec0;
+}
+.article-header {
+  border-bottom:1px solid #e2e8f0;
+  padding-bottom:12px;
+  margin-bottom:18px;
+}
+.article-kicker {
+  font-size:0.8rem;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:#718096;
+  margin-bottom:4px;
+}
+.article-title {
+  font-size:1.45rem;
+  margin:0 0 4px;
+  letter-spacing:-0.02em;
+}
+.article-subtitle {
+  font-size:0.95rem;
+  color:#4a5568;
+}
+.article-meta {
+  font-size:0.8rem;
+  color:#a0aec0;
+  margin-top:6px;
+}
+.article-body {
+  margin-top:10px;
+  column-count:1;
+  column-gap:32px;
+  column-rule:1px solid rgba(226,232,240,0.8);
+}
+.article-body p {
+  margin:0 0 12px;
+  text-align:justify;
+}
+.article-body p strong {
+  font-weight:700;
+  color:#2d3748;
+}
+.article-pull {
+  margin:16px 0;
+  padding:12px 16px;
+  border-radius:14px;
+  background:#f7fafc;
+  border:1px solid #e2e8f0;
+  font-style:italic;
+  font-size:0.9rem;
+}
+@media (min-width: 900px) {
+  .article-body { column-count:2; }
+}
+/* INPUTS & INTERACTIVES */
+.vocab-item {
+  background: rgba(0, 0, 0, 0.02);
+  padding: 20px 25px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  margin-bottom: 10px;
+  transition: 0.3s;
+}
+.vocab-item:hover {
+  background: #fff;
+  border-color: var(--border);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+}
+textarea {
+  width: 95%;
+  border: 2px solid #eaedf0;
+  border-radius: 20px;
+  padding: 20px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.6);
+  resize: vertical;
+  min-height: 120px;
+  transition: 0.3s;
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.08);
+}
+.flashcard {
+  background: #fff;
+  border: 1px solid #eaedf0;
+  padding: 24px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+.flashcard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+  border-color: var(--accent);
+}
+.flashcard.correct {
+  background: #f0fff4;
+  border-color: #9cf7b4;
+  border-width: 2px;
+}
+.flashcard.saved {
+  border-color:#9cf7b4;
+  background:#f0fff4;
+}
+.gap-input {
+  background: #ffffff;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-weight: 600;
+  text-align: center;
+  width: 140px;
+  transition: 0.3s;
+}
+.gap-input:focus { outline: none; background: #fff; border-color: var(--accent); }
+.gap-input.correct { background: #dcfce7; color: #166534; box-shadow: 0 0 15px rgba(72,187,120,0.2); }
+.gap-input.incorrect { background: #fee2e2; color: #991b1b; box-shadow: 0 0 15px rgba(245,101,101,0.2); }
+.btn-check {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: 0.3s;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+}
+.btn-check:hover {
+  opacity: 0.95;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);
+}
+/* PROGRESS BADGE */
+#saveStatus {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--text-main);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: 0.5s;
+  z-index: 1000;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; animation: slideUp 0.6s cubic-bezier(0.2, 1, 0.2, 1); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Matching grid (kept for future use) */
+.q4-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+  align-items: flex-start;
+}
+.q4-item {
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.q4-item.selected { border-left-color: var(--accent); background: #e8f0fe; }
+.q4-item.correct { border-left-color: var(--success); background: #e8f5e9; }
+.q4-item.incorrect{ border-left-color: var(--error); background: #ffebee; }
+/* Audio Player (not used here, but left for reuse) */
+.audio-wrapper {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 50px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+.audio-label {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+.audio-frame { width: 100%; height: 60px; border: none; overflow: hidden; }
+/* Highlight box */
+.box-highlight {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 15px 0;
+  border: 1px solid var(--border);
+}
+/* Mobile */
+@media (max-width: 768px) {
+  html { font-size: 18px; }
+  .q4-grid { grid-template-columns: 1fr; }
+  .container { padding: 0 10px; }
+  .card { padding: 25px; border-radius: 24px; }
+  .top-nav .sub { display: none; }
+}
+</style>
+</head>
+<body class="ctx-1">
+<div class="tech-bg"></div>
+<div class="container">
+  <header>
+    <div class="subtitle">Workplace health & data</div>
+    <h1>Should companies track employee health?</h1>
+  </header>
+
+  <div class="top-nav-wrapper">
+    <div class="top-nav">
+      <div class="nav-pill-bg"></div>
+      <button type="button" class="nav-tab" onclick="goToPage(1)">
+        <span class="label">Warmer</span>
+        <span class="sub">VOCABULARY</span>
+      </button>
+      <button type="button" class="nav-tab" onclick="goToPage(2)">
+        <span class="label">Reading</span>
+        <span class="sub">ARTICLE</span>
+      </button>
+      <button type="button" class="nav-tab" onclick="goToPage(3)">
+        <span class="label">Practice</span>
+        <span class="sub">SPEAKING</span>
+      </button>
+      <button type="button" class="nav-tab" onclick="goToPage(6)">
+        <span class="label">My dictionary</span>
+        <span class="sub">Review</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="saveStatus">Progress saved</div>
+
+  <form id="lessonForm">
+    <!-- PAGE 1: Warmer + key words -->
+    <div class="page active" id="page1">
+         <!-- Objectives -->
+      <section class="card">
+        <h2>Objectives</h2>
+        <div class= "box-highlight">
+        <ul>
+          <li>discuss the uses of any health apps or
+activity trackers you use;</li>
+          <li>read two articles, either in favour
+of companies tracking their employees’
+health or against it;</li>
+          <li>explore your personal responses to
+employee health tracking;</li>
+<li>compose a persuasive email.</li>
+        </ul>
+        </div>
+      </section>
+      <section class="card">
+        <h2>1.1 Warmer – health & apps</h2>
+        <p>Discuss the questions with a partner or make short notes before speaking.</p>
+        <div class= "box-highlight">
+        <ul>
+          <li>Do you have any health apps on your phone? What do they do?</li>
+          <li>Do you own an activity tracker (for example a Fitbit or smartwatch)? What information does it give you?</li>
+        </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Key words (flashcards)</h2>
+        <p>Click a card to add the term to your personal <strong>Dictionary</strong>. Try to remember the meaning first.</p>
+        <div id="flashcardGrid"
+             style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;"></div>
+      </section>
+
+      <section class="card">
+        <h2>1.2 Key words in context</h2>
+        <p>Write the key words next to the definitions. Then find them in the articles on Page 2 and read them in context.</p>
+
+        <div class="vocab-item">
+          1. a way to check what people do, and how they live their lives, by asking them to make a mark in boxes
+          <br><input class="gap-input" id="k1" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          2. a way of dealing with or thinking about something
+          <br><input class="gap-input" id="k2" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          3. a situation in which somebody else becomes involved in order to influence what happens
+          <br><input class="gap-input" id="k3" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          4. give someone more control over their life
+          <br><input class="gap-input" id="k4" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          5. include more people from different cultures or races
+          <br><input class="gap-input" id="k5" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          6. relating to large companies
+          <br><input class="gap-input" id="k6" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          7. the process of making a judgment or forming an opinion after considering something or someone carefully
+          <br><input class="gap-input" id="k7" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          8. food when considered as something that keeps you healthy
+          <br><input class="gap-input" id="k8" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          9. needing to be dealt with carefully
+          <br><input class="gap-input" id="k9" placeholder="word">
+        </div>
+        <div class="vocab-item">
+          10. profit (and success) from money that you have invested
+          <br><input class="gap-input" id="k10" placeholder="word">
+        </div>
+
+        <button type="button" class="btn-check" onclick="checkKeywords()">Check answers</button>
+        <p id="k_feedback" style="font-size:0.9rem; color:var(--text-dim); margin-top:8px;"></p>
+      </section>
+      
+      <section class="card">
+  <h2>1.3 Key words – worker rights & data</h2>
+  <p>Write the key words next to the definitions. Then find them in the articles and read them in context.</p>
+
+  <p style="font-size:0.9rem; color:var(--text-dim);">
+    Key words:<strong> consent to · repercussion · predict · inference · workforce · disciplinary · enforce · adequate · anonymous · infringe</strong>
+  </p>
+
+  <div class="vocab-item">
+    1. to agree to something, especially after thinking carefully about it
+    <br><input class="gap-input" id="k11" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    2. a bad result or effect of an action
+    <br><input class="gap-input" id="k12" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    3. to say what you think will happen in the future
+    <br><input class="gap-input" id="k13" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    4. a conclusion or opinion that you form based on facts or evidence
+    <br><input class="gap-input" id="k14" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    5. all the people who work for a particular company or in a particular industry
+    <br><input class="gap-input" id="k15" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    6. related to punishments at work for breaking rules
+    <br><input class="gap-input" id="k16" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    7. to make sure that a law or rule is obeyed
+    <br><input class="gap-input" id="k17" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    8. enough in quantity or good enough in quality for a particular purpose
+    <br><input class="gap-input" id="k18" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    9. without a name, so that no one knows who the information is about
+    <br><input class="gap-input" id="k19" placeholder="word">
+  </div>
+  <div class="vocab-item">
+    10. to limit or reduce someone’s rights or freedom in an illegal or unfair way
+    <br><input class="gap-input" id="k20" placeholder="word">
+  </div>
+
+  <button type="button" class="btn-check" onclick="checkKeywords2()">Check answers</button>
+  <p id="k2_feedback" style="font-size:0.9rem; color:var(--text-dim); margin-top:8px;"></p>
+</section>
+
+    </div>
+
+    <!-- PAGE 2: Reading + phrases -->
+    <div class="page" id="page2">
+      <section class="card">
+        <h2>2.1 Reading – YES and NO</h2>
+        <p>Read the two articles for and against health tracking in the workplace. Then complete the tasks below.</p>
+
+ <div class="audio-wrapper">
+        <span class="audio-label">🎧 Play Lesson Audio</span>
+        <!-- Lesson 46 Audio Link Embedded -->
+        <iframe class="audio-frame" src="https://drive.google.com/file/d/1ZNbM9CF1KcouhG3W91okW8_8m6SL6Vzs/preview"></iframe>
+    </div>
+
+        <div class="article-box">
+          <div class="article-header">
+            <div class="article-kicker">Argument for tracking</div>
+            <h2 class="article-title">Should companies track employee health? – YES</h2>
+            <div class="article-subtitle">Health and well-being as key indicators of productivity.</div>
+            <div class="article-meta">By Julian Earwaker – based on comments by Kevin Thomson</div>
+          </div>
+          <div class="article-body">
+            <p>Employee health and well-being are among the most important assets of any business and key indicators of productivity in the workplace. In the past ten years, organizations have moved away from tick-box surveillance of employees to a broader well-being approach. Around 60 per cent of organizations in the UK now have a health and well-being strategy for their employees.</p>
+            <p>Health tracking can give an overview of employee health and identify key risks so that interventions can be put in place. In the UK, 1.4 million workers suffer from work-related health problems. From 2017 to 2018, there were hundreds of thousands of new cases of work-related illness and millions of working days lost because of work-related ill health.</p>
+            <p>Employers have a responsibility to support and empower staff to live healthier and longer lives, particularly as the working population ages and diversifies. Technology has transformed corporate well-being programmes. Personalized health assessments are supported by artificial intelligence to produce an accurate picture of individual employees.</p>
+            <p>Employees receive secure information about their lifestyle, nutrition and mental health. Employers receive an anonymized summary of that data to help them shape workforce health interventions. Using digital tools, organizations can identify risks and encourage positive changes in behaviour. Most people carry a mobile phone, and tracking devices are available if they want to manage their own health.</p>
+            <p>There is a risk that monitoring people’s health could become a surveillance tool to track employees. Staff should be made aware in advance what their data is going to be used for. Employers should encourage employees through trust, respect and empowerment. Large tech companies that have supported this culture are often the ones doing best in the marketplace.</p>
+            <p>Businesses sometimes struggle to find platforms that gather health data in one place. It is a logistical challenge, and any platform must meet GDPR (general data protection regulation) requirements. Privacy is a sensitive subject, and staff may be careful about giving out personal information. Employers want to support individuals, but they also want to see the economic returns that may be associated with corporate healthcare programmes.</p>
+          </div>
+        </div>
+
+<div class="audio-wrapper">
+        <span class="audio-label">🎧 Play Lesson Audio</span>
+        <!-- Lesson 46 Audio Link Embedded -->
+        <iframe class="audio-frame" src="https://drive.google.com/file/d/1SxDTOBKHc95n-bspa5EBtKKLJ7RwHFSf/preview"></iframe>
+    </div>
+
+        <div class="article-box" style="margin-top:24px;">
+          <div class="article-header">
+            <div class="article-kicker">Argument against tracking</div>
+            <h2 class="article-title">Should companies track employee health? – NO</h2>
+            <div class="article-subtitle">The risks of misuse and discrimination.</div>
+            <div class="article-meta">By Julian Earwaker – based on comments by Matt Creagh</div>
+          </div>
+          <div class="article-body">
+            <p>There is increasing use of health-related data tracking at work, and rules should be put in place to protect workers. There is great potential for workforce data to be misused. In the workplace, people often feel pressured to consent to sharing their data because they fear there might be negative consequences if they say no.</p>
+            <p>Employers can create profiles of their workers by collecting a wide range of data. A profile can be used to predict how a worker is going to perform in the future, which could lead to negative inferences. In a worst-case scenario, this could lead to employers discriminating against workers because of their health.</p>
+            <p>Workforce data can be used to make decisions about disciplinary action, hiring and firing, promotions and pay rises. This is why workers should have a voice in data-driven decision-making processes. The strongest protection workers have is GDPR (General Data Protection Regulation), which gives them legal rights to control how their data is collected, used and stored.</p>
+            <p>People need to know what their rights are and that these rights will be properly enforced. Technology should be used for the benefit of workers, for example to make sure they are taking adequate breaks away from their desks. Health data could be made anonymous and viewed as a whole across an organization, rather than be connected to individuals.</p>
+            <p>This would enable an employer to bring well-being benefits to the organization as a whole rather than focus on individual health data. In some countries, data-protection laws are more relaxed and there is evidence that GDPR is not always followed. Working people have a right to a private life, and the law protects that right. An employer’s data collection must not infringe anyone’s privacy rights.</p>
+            <p>We are dealing with health-related data, which is obviously very sensitive. Companies and their employees increasingly use technological devices such as Fitbits and sleep-tracking software. If employees use these devices in their spare time, they might not be aware that the data is still being collected and used within a work context.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2.2 YES / NO – arguments</h2>
+        <p>Write the arguments from the texts into the YES and NO columns. Include simpler explanations or synonyms for any words and expressions you think you might need to explain to someone who hasn’t read the text.</p>
+
+        <div class="box-highlight">
+          <p><strong>YES – arguments in favour of tracking</strong></p>
+          <textarea id="p2_yes"
+            placeholder="Example: Health and well-being are key indicators of productivity. Employers can identify risks and plan interventions..."></textarea>
+        </div>
+
+        <div class="box-highlight">
+          <p><strong>NO – arguments against tracking</strong></p>
+          <textarea id="p2_no"
+            placeholder="Example: Workforce data can be misused. Health profiles could lead to discrimination or unfair decisions..."></textarea>
+        </div>
+
+        <p>Discuss the two authors’ opinions. Say who you think makes the strongest case and what part of their argument most convinced you.</p>
+        <textarea id="p2_discussion"
+          placeholder="Who do you agree with more? Why? Which argument or example was the most convincing for you?"></textarea>
+      </section>
+
+      <section class="card">
+        <h2>2.3 Phrases from the text</h2>
+        <p>a. Find and write down the following three phrases from the articles above.</p>
+
+        <div class="vocab-item">
+          1. worst-case scenario
+          <br><input class="gap-input" id="ph1" placeholder="copy the phrase">
+        </div>
+        <div class="vocab-item">
+          2. data-driven decision-making process
+          <br><input class="gap-input" id="ph2" placeholder="copy the phrase">
+        </div>
+        <div class="vocab-item">
+          3. as a whole
+          <br><input class="gap-input" id="ph3" placeholder="copy the phrase">
+        </div>
+
+        <p>b. Talk about what these phrases mean and write a short definition for each one.</p>
+        <textarea id="ph_defs"
+          placeholder="1. worst-case scenario = the most negative / most serious possible result..."></textarea>
+
+        <p>c. Use each phrase in a new sentence of your own.</p>
+        <textarea id="ph_sentences"
+          placeholder="Write three sentences, one with each phrase."></textarea>
+      </section>
+    </div>
+
+    <!-- PAGE 3: Practice – discussion & writing -->
+    <div class="page" id="page3">
+      <section class="card">
+        <h2>3.1 Discussion – workplace health</h2>
+        <p>Discuss the questions. Make brief notes if it helps you structure your ideas.</p>
+        <div class= "box-highlight">
+        <ul>
+          <li>What types of work-related illnesses are most frequently seen in your field of work?</li>
+          <li>Are these illnesses common in other industries or specific to your field?</li>
+          <li>Your company wants employees to install health-tracking apps on their phones and allow the company access to this information. How do you feel about this?</li>
+          <li>What assurances would you require from the company in order to allow them to track you?</li>
+          <li>Even if it is company policy to track employees’ health and well-being, are there any specific people or groups who should be exempt from this policy?</li>
+          <li>How do you feel in general about your company advising employees on how to lead a healthier life?</li>
+          <li>Should management be required to set a good example to their employees?</li>
+        </ul>
+        </div>
+        <textarea id="p3_discussion_notes"
+          placeholder="Notes from your discussion, key points or useful phrases..."></textarea>
+      </section>
+
+      <section class="card">
+        <h2>3.2 Writing – persuasive email</h2>
+        <p>Write an email to the staff in your company trying to convince them to share their health data with the company.</p>
+        <ul>
+          <li>Explain the benefits this will bring to the company and to employees.</li>
+          <li>Offer some kind of reward or incentive in exchange for their information.</li>
+          <li>Show that you understand privacy concerns and explain how the data will be protected.</li>
+        </ul>
+        <textarea id="p3_email"
+          placeholder="Write your email here..."></textarea>
+      </section>
+    </div>
+
+    <!-- PAGE 4: Dictionary work (lesson-specific) -->
+    <div class="page" id="page4">
+      <section class="card">
+        <h2>4. Dictionary – key terms</h2>
+        <p>Use this space to record extra notes or translations for the key words and phrases from this lesson (for example: <em>tick-box surveillance, well-being strategy, workforce data, worst-case scenario</em>).</p>
+        <textarea id="dict_lesson"
+          placeholder="Write your own explanations, translations or example sentences for today’s vocabulary..."></textarea>
+      </section>
+    </div>
+
+    <!-- PAGE 5: Extra practice placeholder -->
+    <div class="page" id="page5">
+      <section class="card">
+        <h2>5. Extra practice</h2>
+        <p>Use this area for any extra practice your teacher adds (for example, exam-style questions, role-plays or project work).</p>
+        <textarea id="p5_extra"
+          placeholder="Additional exercises or homework notes..."></textarea>
+      </section>
+    </div>
+
+    <!-- PAGE 6: Global dictionary -->
+    <div class="page" id="page6">
+      <section class="card">
+        <h2>My dictionary</h2>
+        <p>Words you save from any page in this lesson will appear here.</p>
+        <div id="dictContainer"
+             style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;"></div>
+        <textarea id="dict_notes" placeholder="General notes from your lessons..."></textarea>
+      </section>
+    </div>
+
+    <button type="button" onclick="resetForm()"
+      style="background:none;border:none;color:var(--text-dim);cursor:pointer;display:block;margin:60px auto;font-size:0.9rem;opacity:0.6;">
+      Reset progress
+    </button>
+  </form>
+</div>
+
+<script>
+const STORAGE_KEY = 'unit_employee_health_v1_';
+const DICT_KEY = STORAGE_KEY + 'dict';
+
+/* NAVIGATION */
+function goToPage(pageNumber) {
+  // switch visible page
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page' + pageNumber);
+  if (page) page.classList.add('active');
+
+  // keep other body classes, just update ctx-*
+  document.body.className = document.body.className
+    .split(' ')
+    .filter(c => !c.startsWith('ctx-'))
+    .join(' ')
+    .trim() + ' ctx-' + pageNumber;
+
+  // move pill by TAB index, not page number
+  const pill = document.querySelector('.nav-pill-bg');
+  if (pill) {
+    let tabIndex = 0; // 0-based for transform
+    if (pageNumber === 1) tabIndex = 0;      // Warmer
+    else if (pageNumber === 2) tabIndex = 1; // Reading
+    else if (pageNumber === 3) tabIndex = 2; // Practice
+    else if (pageNumber === 6) tabIndex = 3; // My dictionary
+
+    pill.style.transform = `translateX(${tabIndex * 100}%)`;
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+/* FLASHCARDS DATA – lesson vocab */
+const flashcardData = [
+  { word: "tick-box surveillance", def: "A basic way of monitoring people, where you just tick boxes instead of looking at the real situation." },
+  { word: "approach", def: "A way of dealing with or thinking about something." },
+  { word: "intervention", def: "When someone becomes involved in a situation in order to change what happens." },
+  { word: "empower", def: "To give someone more control or power over their life or decisions." },
+  { word: "diversify", def: "To become more varied, for example by including people from more cultures or backgrounds." },
+  { word: "corporate", def: "Related to large companies or big business." },
+  { word: "assessment", def: "The process of judging or evaluating something carefully." },
+  { word: "nutrition", def: "Food, especially seen in relation to health and how it affects the body." },
+  { word: "sensitive", def: "Needing to be dealt with carefully because it is private or delicate." },
+  { word: "returns", def: "The profit or benefits you get from money or time you have invested." }
+];
+
+/* DICTIONARY HELPERS */
+function getDict() { return JSON.parse(localStorage.getItem(DICT_KEY) || '[]'); }
+function saveDict(dict) { localStorage.setItem(DICT_KEY, JSON.stringify(dict)); }
+
+function buildFlashcards() {
+  const grid = document.getElementById('flashcardGrid');
+  if (!grid) return;
+  const dict = getDict();
+  grid.innerHTML = "";
+  flashcardData.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'flashcard' + (dict.some(d => d.word === item.word) ? ' correct' : '');
+    card.innerHTML = `<strong>${item.word}</strong><div style="font-size:0.85rem; color:var(--text-dim); margin-top:8px">${item.def}</div>`;
+    card.onclick = () => {
+      card.classList.toggle('correct');
+      toggleDict(item);
+    };
+    grid.appendChild(card);
+  });
+}
+
+function toggleDict(item) {
+  let dict = getDict();
+  const idx = dict.findIndex(d => d.word === item.word);
+  if (idx > -1) dict.splice(idx, 1); else dict.push(item);
+  saveDict(dict);
+  renderDict();
+  showSaved();
+}
+
+function renderDict() {
+  const container = document.getElementById('dictContainer');
+  if (!container) return;
+  const dict = getDict();
+  container.innerHTML = dict.length
+    ? dict.map(i => `<div class="flashcard correct"><strong>${i.word}</strong><div>${i.def}</div></div>`).join('')
+    : "<p style='color:var(--text-dim)'>Your dictionary is empty. Click cards on Page 1 to add words.</p>";
+}
+
+/* GENERIC INPUT MARKER */
+function markInput(el, ok) {
+  if (!el) return;
+  el.classList.remove('correct','incorrect');
+  if (!el.value.trim()) return;
+  el.classList.add(ok ? 'correct' : 'incorrect');
+}
+
+/* 1.2 KEYWORD AUTOCHECK */
+function checkKeywords() {
+  const key = {
+    k1: ['tick-box surveillance'],
+    k2: ['approach'],
+    k3: ['intervention'],
+    k4: ['empower'],
+    k5: ['diversify'],
+    k6: ['corporate'],
+    k7: ['assessment'],
+    k8: ['nutrition'],
+    k9: ['sensitive'],
+    k10: ['returns']
+  };
+  let allOk = true;
+  Object.keys(key).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = el.value.trim().toLowerCase();
+    const ok = key[id].some(ans => ans.toLowerCase() === val);
+    if (!val || !ok) allOk = false;
+    markInput(el, ok);
+  });
+  const fb = document.getElementById('k_feedback');
+  if (!fb) return;
+  fb.style.color = allOk ? 'var(--success)' : 'var(--error)';
+  fb.textContent = allOk
+    ? 'All key words are correct – well done!'
+    : 'Some answers need checking. Look back at the articles and try again.';
+}
+
+function checkKeywords2() {
+  const key2 = {
+    k11: ['consent to', 'consent'],
+    k12: ['repercussion', 'repercussions'],
+    k13: ['predict'],
+    k14: ['inference', 'inferences'],
+    k15: ['workforce'],
+    k16: ['disciplinary'],
+    k17: ['enforce'],
+    k18: ['adequate'],
+    k19: ['anonymous'],
+    k20: ['infringe']
+  };
+  let allOk = true;
+  Object.keys(key2).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = el.value.trim().toLowerCase();
+    const ok = key2[id].some(ans => ans.toLowerCase() === val);
+    if (!val || !ok) allOk = false;
+    markInput(el, ok);
+  });
+  const fb = document.getElementById('k2_feedback');
+  if (!fb) return;
+  fb.style.color = allOk ? 'var(--success)' : 'var(--error)';
+  fb.textContent = allOk
+    ? 'All key words are correct – well done!'
+    : 'Some answers need checking. Look back at the articles and try again.';
+}
+
+
+/* SAVE BADGE */
+function showSaved() {
+  const s = document.getElementById('saveStatus');
+  if (!s) return;
+  s.style.opacity = '1';
+  setTimeout(() => { s.style.opacity = '0'; }, 1000);
+}
+
+/* AUTOSAVE FOR ALL INPUTS / TEXTAREAS / SELECTS */
+window.addEventListener('load', () => {
+  buildFlashcards();
+  renderDict();
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    if (!el.id) return;
+    const saved = localStorage.getItem(STORAGE_KEY + el.id);
+    if (saved !== null) el.value = saved;
+    el.addEventListener('input', () => {
+      localStorage.setItem(STORAGE_KEY + el.id, el.value);
+      showSaved();
+    });
+    el.addEventListener('change', () => {
+      localStorage.setItem(STORAGE_KEY + el.id, el.value);
+      showSaved();
+    });
+  });
+});
+
+/* RESET */
+function resetForm() {
+  if (confirm('Clear all progress?')) {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith(STORAGE_KEY))
+      .forEach(k => localStorage.removeItem(k));
+    location.reload();
+  }
+}
+</script>
+</body>
+</html>
