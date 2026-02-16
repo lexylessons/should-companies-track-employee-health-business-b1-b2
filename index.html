@@ -121,10 +121,16 @@ h1 {
   transition: transform 0.5s cubic-bezier(0.2, 1, 0.2, 1);
   z-index: 1;
 }
+
+/* highlight active labels */
+body.ctx-1 .nav-tab[data-page="1"] .label { color: var(--ctx-1); }
+body.ctx-2 .nav-tab[data-page="2"] .label { color: var(--ctx-2); }
+body.ctx-3 .nav-tab[data-page="3"] .label { color: #178C81; }
+body.ctx-6 .nav-tab[data-page="6"] .label { color: #008080; }
+
 /* CARDS */
 .card {
-  background: rgba(248, 250, 252, 0.75);
-  backdrop-filter: blur(15px);
+  background: #f0f2f5;
   border-radius: 22px;
   border: 1px solid var(--border);
   padding: 30px;
@@ -133,7 +139,6 @@ h1 {
     0 2px 4px rgba(0,0,0,0.02),
     0 10px 20px rgba(0,0,0,0.04),
     0 20px 40px rgba(0,0,0,0.06);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .card:hover { box-shadow: 0 20px 50px -20px rgba(0,0,0,0.08); }
 h2 {
@@ -397,19 +402,19 @@ textarea:focus {
   <div class="top-nav-wrapper">
     <div class="top-nav">
       <div class="nav-pill-bg"></div>
-      <button type="button" class="nav-tab" onclick="goToPage(1)">
+      <button type="button" class="nav-tab" data-page="1" onclick="goToPage(1)">
         <span class="label">Warmer</span>
         <span class="sub">VOCABULARY</span>
       </button>
-      <button type="button" class="nav-tab" onclick="goToPage(2)">
+      <button type="button" class="nav-tab" data-page="2" onclick="goToPage(2)">
         <span class="label">Reading</span>
         <span class="sub">ARTICLE</span>
       </button>
-      <button type="button" class="nav-tab" onclick="goToPage(3)">
+      <button type="button" class="nav-tab" data-page="3" onclick="goToPage(3)">
         <span class="label">Practice</span>
         <span class="sub">SPEAKING</span>
       </button>
-      <button type="button" class="nav-tab" onclick="goToPage(6)">
+      <button type="button" class="nav-tab"data-page="6" onclick="goToPage(6)">
         <span class="label">My dictionary</span>
         <span class="sub">Review</span>
       </button>
